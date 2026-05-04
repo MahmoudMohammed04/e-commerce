@@ -1,0 +1,451 @@
+﻿@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Add Product";
+    Layout = "_Layout";
+}
+
+<div class="w-full max-w-5xl mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="/Product/Index" class="inline-flex items-center gap-1 text-sm text-on-surface-variant hover:text-primary transition-colors mb-4">
+            <span class="material-symbols-outlined text-lg">arrow_back</span>
+            Back to Products
+        </a>
+        <h1 class="font-headline text-4xl font-bold text-primary tracking-tight">Add New Product</h1>
+        <p class="text-on-surface-variant text-sm mt-1">Create a new curated item for your collection</p>
+    </div>
+
+    <form id="addProductForm" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left: Images -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-surface-container-low rounded-xl p-6 shadow-sm">
+                <h3 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined">image</span>
+                    Product Images
+                </h3>
+
+                <!-- Main Image -->
+                <div class="space-y-2 mb-4">
+                    <label class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Main Image *</label>
+                    <div class="relative aspect-square rounded-lg border-2 border-dashed border-outline-variant/30 hover:border-primary/50 transition-colors bg-surface-container-lowest overflow-hidden group">
+                        <input type="file" id="mainImage" name="imageFile" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewImage(this, 'mainPreview')" required />
+                        <div id="mainPreview" class="absolute inset-0 flex flex-col items-center justify-center text-on-surface-variant">
+                            <span class="material-symbols-outlined text-4xl mb-2">add_photo_alternate</span>
+                            <span class="text-sm">Click to upload main image</span>
+                        </div>
+                        <img id="mainPreviewImg" class="absolute inset-0 w-full h-full object-cover hidden" />
+                    </div>
+                </div>
+
+                <!-- Additional Images -->
+                <div class="space-y-2">
+                    <label class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Gallery Images</label>
+                    <div class="relative rounded-lg border-2 border-dashed border-outline-variant/30 hover:border-primary/50 transition-colors bg-surface-container-lowest p-4">
+                        <input type="file" id="additionalImages" name="imageFiles" accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewMultipleImages(this)" />
+                        <div class="flex flex-col items-center justify-center text-on-surface-variant py-4">
+                            <span class="material-symbols-outlined text-3xl mb-2">collections</span>
+                            <span class="text-sm">Click to add more images</span>
+                        </div>
+                    </div>
+                    <div id="additionalPreview" class="grid grid-cols-3 gap-2 mt-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Details -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Basic Info -->
+            <div class="bg-surface-container-low rounded-xl p-6 shadow-sm">
+                <h3 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined">info</span>
+                    Basic Information
+                </h3>
+
+                <div class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="name">Product Name *</label>
+                        <input type="text" id="name" name="name" required
+                               class="w-full bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg px-4 py-3 outline-none text-on-surface placeholder:text-outline"
+                               placeholder="Enter product name" />
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="description">Description *</label>
+                        <textarea id="description" name="description" rows="4" required
+                                  class="w-full bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg px-4 py-3 outline-none text-on-surface placeholder:text-outline resize-none"
+                                  placeholder="Describe your product..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="price">Price *</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-outline">$</span>
+                                <input type="number" id="price" name="price" step="0.01" min="0" required
+                                       class="w-full bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg pl-8 pr-4 py-3 outline-none text-on-surface placeholder:text-outline"
+                                       placeholder="0.00" />
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="quantity">Quantity *</label>
+                            <input type="number" id="quantity" name="quantity" min="0" required
+                                   class="w-full bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg px-4 py-3 outline-none text-on-surface placeholder:text-outline"
+                                   placeholder="0" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category & Brand -->
+            <div class="bg-surface-container-low rounded-xl p-6 shadow-sm">
+                <h3 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined">category</span>
+                    Category & Brand
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="categoryId">Category *</label>
+                        <select id="categoryId" name="categoryId" required onchange="onCategoryChange(this.value)"
+                                class="w-full bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg px-4 py-3 outline-none text-on-surface cursor-pointer">
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant" for="brandId">Brand *</label>
+                        <select id="brandId" name="brandId" required
+                                class="w-full bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg px-4 py-3 outline-none text-on-surface cursor-pointer">
+                            <option value="">Select Brand</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Attributes -->
+            <div id="dynamicAttributes" class="bg-surface-container-low rounded-xl p-6 shadow-sm hidden">
+                <h3 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined">tune</span>
+                    Attributes
+                    <span class="text-xs font-normal text-on-surface-variant ml-2">(Select one or more per attribute)</span>
+                </h3>
+                <div id="attributesContainer" class="space-y-5">
+                    <!-- Populated dynamically based on category -->
+                </div>
+            </div>
+
+            <!-- Selected Attributes Summary -->
+            <div id="selectedSummary" class="bg-primary-fixed/30 rounded-xl p-6 hidden">
+                <h3 class="font-headline font-bold text-primary mb-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined">checklist</span>
+                    Selected Combinations
+                </h3>
+                <div id="summaryContent" class="space-y-2 text-sm text-on-surface-variant"></div>
+            </div>
+
+            <!-- Submit -->
+            <div class="flex gap-4 pt-4">
+                <button type="submit" id="submitBtn" data-text="Create Product"
+                        class="flex-1 py-4 primary-gradient text-on-primary font-headline font-bold rounded-lg shadow-lg shadow-primary/10 hover:opacity-90 active:scale-95 transition-all duration-200 relative flex items-center justify-center">
+                    Create Product
+                </button>
+                <a href="/Product/Index" class="px-8 py-4 bg-surface-container-high text-primary font-semibold rounded-lg hover:bg-surface-container-highest transition-colors flex items-center">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        let categoryAttributes = [];
+        let selectedAttributeValues = {}; // { attributeId: [valueId1, valueId2, ...] }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCategories();
+            // Don't pre-load brands - they'll load when category selected
+        });
+
+        async function loadCategories() {
+            try {
+                const categories = await ApiService.getCategories();
+                const select = document.getElementById('categoryId');
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                showToast('Failed to load categories');
+            }
+        }
+
+        async function loadBrands(categoryId = null) {
+            try {
+                const brands = await ApiService.getBrands(categoryId);
+                const select = document.getElementById('brandId');
+
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Select Brand</option>';
+
+                brands.forEach(brand => {
+                    const option = document.createElement('option');
+                    option.value = brand.id;
+                    option.textContent = brand.name;
+                    select.appendChild(option);
+                });
+
+                if (currentValue && Array.from(select.options).some(o => o.value === currentValue)) {
+                    select.value = currentValue;
+                }
+            } catch (e) {
+                showToast('Failed to load brands');
+            }
+        }
+
+        async function onCategoryChange(categoryId) {
+            const attrsSection = document.getElementById('dynamicAttributes');
+            const container = document.getElementById('attributesContainer');
+
+            await loadBrands(categoryId || null);
+
+            if (!categoryId) {
+                attrsSection.classList.add('hidden');
+                document.getElementById('selectedSummary').classList.add('hidden');
+                return;
+            }
+
+            try {
+                const data = await ApiService.getFiltersByCategory(categoryId);
+                categoryAttributes = data.filters || [];
+                selectedAttributeValues = {};
+
+                container.innerHTML = '';
+
+                if (categoryAttributes.length === 0) {
+                    attrsSection.classList.add('hidden');
+                    return;
+                }
+
+                categoryAttributes.forEach(attr => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'space-y-3';
+
+                    const label = document.createElement('label');
+                    label.className = 'font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant block';
+                    label.textContent = attr.attributeName;
+
+                    // Multi-select chips instead of single dropdown
+                    const chipsContainer = document.createElement('div');
+                    chipsContainer.className = 'flex flex-wrap gap-2';
+                    chipsContainer.id = `attr-chips-${attr.attributeId}`;
+
+                    attr.values.forEach(val => {
+                        const chip = document.createElement('button');
+                        chip.type = 'button';
+                        chip.className = 'px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ' +
+                            'bg-surface-container-lowest border-outline-variant/30 text-on-surface-variant ' +
+                            'hover:border-primary hover:text-primary';
+                        chip.textContent = val.value;
+                        chip.dataset.valueId = val.id;
+                        chip.dataset.attributeId = attr.attributeId;
+
+                        chip.onclick = () => toggleAttributeValue(attr.attributeId, val.id, chip);
+                        chipsContainer.appendChild(chip);
+                    });
+
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(chipsContainer);
+                    container.appendChild(wrapper);
+                });
+
+                attrsSection.classList.remove('hidden');
+
+            } catch (e) {
+                showToast('Failed to load attributes for this category');
+                attrsSection.classList.add('hidden');
+            }
+        }
+
+        function toggleAttributeValue(attributeId, valueId, chipElement) {
+            // Initialize array if not exists
+            if (!selectedAttributeValues[attributeId]) {
+                selectedAttributeValues[attributeId] = [];
+            }
+
+            const values = selectedAttributeValues[attributeId];
+            const index = values.indexOf(valueId);
+
+            if (index > -1) {
+                // Deselect
+                values.splice(index, 1);
+                chipElement.classList.remove('bg-primary', 'text-on-primary', 'border-primary');
+                chipElement.classList.add('bg-surface-container-lowest', 'text-on-surface-variant', 'border-outline-variant/30');
+            } else {
+                // Select
+                values.push(valueId);
+                chipElement.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant', 'border-outline-variant/30');
+                chipElement.classList.add('bg-primary', 'text-on-primary', 'border-primary');
+            }
+
+            updateSelectedSummary();
+        }
+
+        function updateSelectedSummary() {
+            const summary = document.getElementById('selectedSummary');
+            const content = document.getElementById('summaryContent');
+
+            const hasSelections = Object.values(selectedAttributeValues).some(arr => arr.length > 0);
+
+            if (!hasSelections) {
+                summary.classList.add('hidden');
+                return;
+            }
+
+            content.innerHTML = '';
+
+            categoryAttributes.forEach(attr => {
+                const selected = selectedAttributeValues[attr.attributeId] || [];
+                if (selected.length === 0) return;
+
+                const selectedNames = attr.values
+                    .filter(v => selected.includes(v.id))
+                    .map(v => v.value)
+                    .join(', ');
+
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-2';
+                row.innerHTML = `
+                    <span class="font-semibold text-primary min-w-[100px]">${attr.attributeName}:</span>
+                    <span class="text-on-surface">${selectedNames}</span>
+                `;
+                content.appendChild(row);
+            });
+
+            summary.classList.remove('hidden');
+        }
+
+        function previewImage(input, previewId) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById(previewId);
+                const img = document.getElementById(previewId + 'Img');
+                preview.innerHTML = '';
+                preview.classList.add('hidden');
+                img.src = e.target.result;
+                img.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function previewMultipleImages(input) {
+            const container = document.getElementById('additionalPreview');
+            const files = Array.from(input.files);
+
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'aspect-square rounded-lg overflow-hidden bg-surface-container-low relative group';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover" />
+                        <button type="button" onclick="this.parentElement.remove()" class="absolute top-1 right-1 w-6 h-6 bg-error text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="material-symbols-outlined text-sm">close</span>
+                        </button>
+                    `;
+                    container.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ============================================
+        // SUBMIT PRODUCT
+        // ============================================
+        document.getElementById('addProductForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('submitBtn');
+
+            // Validation
+            const categoryId = document.getElementById('categoryId').value;
+            const brandId = document.getElementById('brandId').value;
+
+            if (!categoryId) {
+                showToast('Please select a category');
+                return;
+            }
+            if (!brandId) {
+                showToast('Please select a brand');
+                return;
+            }
+
+            // Check at least one attribute value is selected per attribute
+            const missingAttrs = categoryAttributes.filter(attr => {
+                const selected = selectedAttributeValues[attr.attributeId] || [];
+                return selected.length === 0;
+            });
+
+            if (missingAttrs.length > 0) {
+                showToast(`Please select at least one ${missingAttrs[0].attributeName}`);
+                return;
+            }
+
+            setButtonLoading(btn, true);
+
+            try {
+                const formData = new FormData();
+
+                // Basic fields
+                formData.append('name', document.getElementById('name').value);
+                formData.append('description', document.getElementById('description').value);
+                formData.append('categoryId', categoryId);
+                formData.append('BrandId', brandId);
+                formData.append('price', document.getElementById('price').value);
+                formData.append('quantity', document.getElementById('quantity').value);
+
+                // Main image
+                const mainImageFile = document.getElementById('mainImage').files[0];
+                if (mainImageFile) {
+                    formData.append('image', mainImageFile);
+                }
+
+                // Additional images
+                const additionalFiles = document.getElementById('additionalImages').files;
+                Array.from(additionalFiles).forEach(file => {
+                    formData.append('images', file);
+                });
+
+                // Attributes - flatten all selected value IDs
+                // Format: comma-separated list of all selected attribute value IDs
+                const allValueIds = Object.values(selectedAttributeValues)
+                .flat()
+                .map(id => parseInt(id)); 
+
+                if (allValueIds.length > 0) {
+
+                    allValueIds.forEach(id => {
+                        formData.append("attributes", id);
+                    });
+                }
+
+                await ApiService.addProduct(formData);
+
+                showToast('Product created successfully!', 'success');
+
+                setTimeout(() => {
+                    window.location.href = '/Product/Index';
+                }, 1200);
+
+            } catch (error) {
+                showToast(error.message || 'Failed to create product');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        });
+    </script>
+}

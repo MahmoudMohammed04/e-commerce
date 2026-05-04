@@ -1,0 +1,692 @@
+﻿@inject IConfiguration Configuration
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - The Curator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        secondary: "#585c80",
+                        "outline-variant": "#c6c5d4",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f8f9fa",
+                        "on-primary-container": "#8390f2",
+                        "tertiary-container": "#5c1800",
+                        "on-secondary-fixed-variant": "#414467",
+                        "inverse-surface": "#2e3132",
+                        "tertiary-fixed-dim": "#ffb59d",
+                        "on-primary-fixed-variant": "#303c9a",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e1e3e4",
+                        background: "#f8f9fa",
+                        "primary-fixed-dim": "#bcc2ff",
+                        "surface-container": "#edeeef",
+                        "inverse-primary": "#bcc2ff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#d2d4ff",
+                        "on-tertiary-container": "#e17c5a",
+                        "on-tertiary-fixed-variant": "#7b2e12",
+                        surface: "#f8f9fa",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#454652",
+                        "secondary-fixed": "#e0e0ff",
+                        "on-secondary-container": "#575b7f",
+                        "on-tertiary-fixed": "#390c00",
+                        tertiary: "#380b00",
+                        primary: "#000b60",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container-high": "#e7e8e9",
+                        "surface-dim": "#d9dadb",
+                        outline: "#767683",
+                        "inverse-on-surface": "#f0f1f2",
+                        error: "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#dfe0ff",
+                        "surface-tint": "#4955b3",
+                        "on-primary-fixed": "#000c62",
+                        "on-secondary-fixed": "#151839",
+                        "tertiary-fixed": "#ffdbd0",
+                        "surface-container-low": "#f3f4f5",
+                        "primary-container": "#142283",
+                        "on-surface": "#191c1d",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#c1c3ed",
+                        "on-background": "#191c1d"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    fontFamily: {
+                        headline: ["Manrope"],
+                        body: ["Inter"],
+                        label: ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-header {
+            background: rgba(248, 249, 250, 0.7);
+            backdrop-filter: blur(24px);
+        }
+
+        .primary-gradient {
+            background: linear-gradient(135deg, #000b60 0%, #142283 100%);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.12);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            max-width: 400px;
+        }
+
+            .toast.show {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .toast.error {
+                border-left: 4px solid #ba1a1a;
+            }
+
+            .toast.success {
+                border-left: 4px solid #00685d;
+            }
+
+        .toast-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-loading .btn-text {
+            opacity: 0;
+        }
+
+        .btn-loading .spinner {
+            position: absolute;
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen flex flex-col">
+
+    @if (!(ViewData["HideLayout"] as bool? ?? false))
+    {
+        <header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-[0_12px_48px_rgba(0,0,0,0.06)]">
+            <div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+                <a href="/" class="text-2xl font-bold tracking-tighter text-[#000b60] font-headline">The Curator</a>
+                <div class="flex items-center gap-4" id="auth-nav"></div>
+            </div>
+        </header>
+
+        <main class="flex-grow pt-24 pb-12">
+            @RenderBody()
+        </main>
+
+        <footer class="w-full py-12 px-6 bg-slate-50">
+            <div class="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-4">
+                <div class="font-headline text-lg font-bold text-[#000b60]">The Curator</div>
+                <div class="flex gap-8">
+                    <a class="font-inter text-xs text-slate-500 hover:text-[#000b60] transition-colors" href="#">Privacy Policy</a>
+                    <a class="font-inter text-xs text-slate-500 hover:text-[#000b60] transition-colors" href="#">Terms of Service</a>
+                    <a class="font-inter text-xs text-slate-500 hover:text-[#000b60] transition-colors" href="#">Help Center</a>
+                </div>
+                <div class="font-inter text-xs text-slate-500">
+                    © 2024 The Editorial Retailer. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    }
+    else
+    {
+        <main class="flex-grow">
+            @RenderBody()
+        </main>
+    }
+
+    <div id="toast-container"></div>
+
+    <script>
+        // ============================================
+        // TOKEN STORAGE SERVICE
+        // ============================================
+        const TokenService = {
+            ACCESS_TOKEN_KEY: 'curator_access_token',
+            REFRESH_TOKEN_KEY: 'curator_refresh_token',
+            USER_KEY: 'curator_user',
+
+            setTokens(accessToken, refreshToken) {
+                localStorage.setItem(this.ACCESS_TOKEN_KEY, accessToken);
+                localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+            },
+
+            getAccessToken() {
+                return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+            },
+
+            getRefreshToken() {
+                return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+            },
+
+            clearTokens() {
+                localStorage.removeItem(this.ACCESS_TOKEN_KEY);
+                localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+                localStorage.removeItem(this.USER_KEY);
+            },
+
+            isAuthenticated() {
+                return !!this.getAccessToken();
+            },
+
+            setUser(user) {
+                localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+            },
+
+            getUser() {
+                const user = localStorage.getItem(this.USER_KEY);
+                return user ? JSON.parse(user) : null;
+            }
+        };
+
+        // ============================================
+        // API CONFIGURATION
+        // ============================================
+        const API_BASE = '@Configuration["ApiBaseUrl"]?.ToString()';
+
+        // ============================================
+        // API SERVICE - With Automatic Token Refresh
+        // ============================================
+        const ApiService = {
+            isRefreshing: false,
+            refreshSubscribers: [],
+
+            buildHeaders(isFormData = false) {
+                const headers = {};
+                const accessToken = TokenService.getAccessToken();
+
+                if (accessToken) {
+                    headers['Authorization'] = `Bearer ${accessToken}`;
+                }
+
+                if (!isFormData) {
+                    headers['Content-Type'] = 'application/json';
+                }
+
+                return headers;
+            },
+
+            async request(endpoint, options = {}) {
+                const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
+                const isFormData = options.body instanceof FormData;
+
+                const config = {
+                    method: options.method || 'GET',
+                    headers: this.buildHeaders(isFormData)
+                };
+
+                if (options.body && options.method !== 'GET') {
+                    config.body = isFormData ? options.body : JSON.stringify(options.body);
+                }
+
+                try {
+                    const response = await fetch(url, config);
+
+                    // Token expired - attempt refresh
+                    if (response.status === 401) {
+                        // Skip refresh for auth endpoints (except RefreshToken itself)
+                        const isAuthEndpoint = endpoint.includes('/Auth/') && !endpoint.includes('/Auth/RefreshToken');
+
+                        if (isAuthEndpoint) {
+                            this.handleAuthFailure();
+                            throw new Error('Unauthorized');
+                        }
+
+                        const newToken = await this.tryRefreshToken();
+
+                        if (newToken) {
+                            // Retry original request with new token
+                            config.headers['Authorization'] = `Bearer ${newToken}`;
+                            const retryResponse = await fetch(url, config);
+
+                            if (retryResponse.status === 401) {
+                                this.handleAuthFailure();
+                                throw new Error('Unauthorized after refresh');
+                            }
+
+                            if (!retryResponse.ok) {
+                                let errorMessage = 'An error occurred';
+                                try {
+                                    const errorData = await retryResponse.json();
+                                    errorMessage = errorData.message || errorData.title || `HTTP ${retryResponse.status}`;
+                                } catch {
+                                    errorMessage = `HTTP ${retryResponse.status}: ${retryResponse.statusText}`;
+                                }
+                                throw new Error(errorMessage);
+                            }
+
+                            if (retryResponse.status === 204) return null;
+
+                            const contentType = retryResponse.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return await retryResponse.json();
+                            }
+                            return await retryResponse.text();
+                        } else {
+                            // Refresh failed or no refresh token
+                            this.handleAuthFailure();
+                            throw new Error('Unauthorized');
+                        }
+                    }
+
+                    if (!response.ok) {
+                        let errorMessage = 'An error occurred';
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.message || errorData.title || `HTTP ${response.status}`;
+                        } catch {
+                            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                    if (response.status === 204) return null;
+
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return await response.json();
+                    }
+                    return await response.text();
+
+                } catch (error) {
+                    if (error.message === 'Unauthorized' || error.message === 'Unauthorized after refresh') {
+                        throw error;
+                    }
+                    throw error;
+                }
+            },
+
+            async tryRefreshToken() {
+                const refreshToken = TokenService.getRefreshToken();
+
+                if (!refreshToken) {
+                    return null;
+                }
+
+                // If another refresh is in progress, wait for it
+                if (this.isRefreshing) {
+                    return new Promise((resolve) => {
+                        this.refreshSubscribers.push(resolve);
+                    });
+                }
+
+                this.isRefreshing = true;
+
+                try {
+                    const { ipAddress, deviceName } = getClientInfo();
+
+                    const response = await fetch(`${API_BASE}/Auth/RefreshToken`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            refreshToken: refreshToken,
+                            ipAddress: ipAddress,
+                            deviceName: deviceName
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Refresh failed');
+                    }
+
+                    const data = await response.json();
+
+                    // Store new tokens
+                    TokenService.setTokens(data.accessToken, data.refreshToken);
+
+                    // Notify all waiting requests
+                    this.refreshSubscribers.forEach(callback => callback(data.accessToken));
+                    this.refreshSubscribers = [];
+
+                    this.isRefreshing = false;
+                    return data.accessToken;
+
+                } catch (error) {
+                    this.isRefreshing = false;
+                    this.refreshSubscribers = [];
+                    TokenService.clearTokens();
+                    return null;
+                }
+            },
+
+            handleAuthFailure() {
+                TokenService.clearTokens();
+                showToast('Session expired. Please log in again.', 'error');
+
+                setTimeout(() => {
+                    const currentPath = window.location.pathname + window.location.search;
+                    window.location.href = `/Authv/Login?returnUrl=${encodeURIComponent(currentPath)}`;
+                }, 1500);
+            },
+
+            // ============================================
+            // AUTH ENDPOINTS
+            // ============================================
+            async login(email, password, ipAddress, deviceName) {
+                return this.request('/Auth/Login', {
+                    method: 'POST',
+                    body: { email, password, ipAddress, deviceName }
+                });
+            },
+
+            async register(email, name, password, confirmPassword, phone, ipAddress, deviceName) {
+                return this.request('/Auth/Register', {
+                    method: 'POST',
+                    body: { email, name, password, confirmPassword, phone, ipAddress, deviceName }
+                });
+            },
+
+            async googleLogin(token, ipAddress, deviceName) {
+                const params = new URLSearchParams({ token });
+                return this.request(`/Auth/google-login?${params.toString()}`, {
+                    method: 'POST',
+                    body: { ipAddress, deviceName }
+                });
+            },
+
+            async refreshToken(refreshToken, ipAddress, deviceName) {
+                return this.request('/Auth/RefreshToken', {
+                    method: 'POST',
+                    body: { refreshToken, ipAddress, deviceName }
+                });
+            },
+
+            async logout(token, ipAddress) {
+                return this.request('/Auth/Logout', {
+                    method: 'POST',
+                    body: { token, ipAddress }
+                });
+            },
+
+            async forgotPassword(email) {
+                const params = new URLSearchParams({ email });
+                return this.request(`/Auth/ForgetPassword?${params.toString()}`, {
+                    method: 'POST'
+                });
+            },
+
+            async resetPassword(email, token, newPassword, confirmPassword) {
+                const params = new URLSearchParams({ email, token, newPassword, confirmPassword });
+                return this.request(`/Auth/reset-password?${params.toString()}`, {
+                    method: 'POST'
+                });
+            },
+
+            // ============================================
+            // PRODUCT & FILTER ENDPOINTS
+            // ============================================
+            async getProducts(filters = {}) {
+                const params = new URLSearchParams();
+                if (filters.categoryId) params.append('categoryId', filters.categoryId);
+                if (filters.brandId) params.append('brandId', filters.brandId);
+                if (filters.minPrice) params.append('minPrice', filters.minPrice);
+                if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+                if (filters.attributeValueIds) params.append('attributeValueIds', filters.attributeValueIds);
+                if (filters.page) params.append('page', filters.page);
+
+                const queryString = params.toString();
+                return this.request(`/Product/Products${queryString ? '?' + queryString : ''}`, {
+                    method: 'GET'
+                });
+            },
+
+            async getProductDetails(id) {
+                return this.request(`/Product/ProductDetails?id=${id}`, {
+                    method: 'GET'
+                });
+            },
+
+            async addProduct(formData) {
+                return this.request('/Product/AddProduct', {
+                    method: 'POST',
+                    body: formData
+                });
+            },
+
+            async getCategories() {
+                return this.request('/Filter/GetCategories', {
+                    method: 'GET'
+                });
+            },
+
+            async getBrands(categoryId = null) {
+                const params = new URLSearchParams();
+                if (categoryId) params.append('categoryId', categoryId);
+
+                const queryString = params.toString();
+                return this.request(`/Filter/GetBrands${queryString ? '?' + queryString : ''}`, {
+                    method: 'GET'
+                });
+            },
+
+            async getFiltersByCategory(categoryId) {
+                return this.request(`/Filter/GetFilter?categoryId=${categoryId}`, {
+                    method: 'GET'
+                });
+            },
+
+            // CART ENDPOINTS
+            async addToCart(productId, quantity) {
+                return this.request('/Cart/addToCart', {
+                    method: 'POST',
+                    body: { productId, quantity }
+                });
+            },
+
+            async removeFromCart(ProductId) {
+                return this.request('/Cart/removeFromCart', {
+                    method: 'DELETE',
+                    body: { ProductId }
+                });
+            },
+
+            async getCart(page = 1, pageSize = 15) {
+                return this.request(`/Cart/showCart?page=${page}&pageSize=${pageSize}`, {
+                    method: 'GET'
+                });
+            },
+
+            async clearCart() {
+                return this.request('/Cart/clear', {
+                    method: 'DELETE'
+                });
+            },
+
+            async checkout(checkoutData) {
+                return this.request('/Cart/checkout', {
+                    method: 'POST',
+                    body: checkoutData
+                });
+            },
+
+            async getCountries() {
+                return this.request('/Location/GetCountries', { method: 'GET' });
+            },
+
+            async getCities(countryId) {
+                return this.request(`/Location/GetCities?CountryId=${countryId}`, { method: 'GET' });
+            },
+
+
+                    // USER
+            async getUser() {
+                return this.request('/User/GetUser', { method: 'GET' });
+            },
+            async updatePassword(oldPassword, newPassword) {
+                const params = new URLSearchParams({ oldPassword, newPassword });
+                return this.request(`/User/UpdatePassword?${params.toString()}`, { method: 'POST' });
+            },
+            async updateEmail(newEmail) {
+                const params = new URLSearchParams({ newEmail });
+                return this.request(`/User/UpdateEmail?${params.toString()}`, { method: 'PATCH' });
+            },
+            async updatePhone(newPhone) {
+                const params = new URLSearchParams({ newPhone });
+                return this.request(`/User/UpdatePhone?${params.toString()}`, { method: 'PATCH' });
+            },
+            async updateUsername(newUsername) {
+                const params = new URLSearchParams({ newUsername });
+                return this.request(`/User/UpdateUsername?${params.toString()}`, { method: 'PATCH' });
+            },
+
+            // ORDER
+            async getOrder(orderId) {
+                return this.request(`/Order/${orderId}`, { method: 'GET' });
+            },
+            async getOrders(page = 1, pageSize = 15) {
+                return this.request(`/Order/orders?page=${page}&pageSize=${pageSize}`, { method: 'GET' });
+            },
+
+        };
+
+        // ============================================
+        // UI HELPERS
+        // ============================================
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icon = type === 'success' ? 'check_circle' : 'error';
+            const iconColor = type === 'success' ? 'text-[#00685d]' : 'text-[#ba1a1a]';
+
+            toast.innerHTML = `
+                <span class="material-symbols-outlined toast-icon ${iconColor}">${icon}</span>
+                <span class="text-on-surface font-medium">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        function getClientInfo() {
+            return {
+                ipAddress: '192.168.1.1',
+                deviceName: `${navigator.platform} - ${navigator.userAgent.split(')')[0]})`
+            };
+        }
+
+        function setButtonLoading(btn, loading) {
+            if (loading) {
+                btn.classList.add('btn-loading');
+                btn.disabled = true;
+                btn.innerHTML = `<div class="spinner"></div><span class="btn-text">${btn.dataset.text || btn.textContent}</span>`;
+            } else {
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+                btn.innerHTML = `<span class="btn-text">${btn.dataset.text || btn.textContent}</span>`;
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function updateNavState() {
+            const nav = document.getElementById('auth-nav');
+            if (!nav) return;
+
+            if (TokenService.isAuthenticated()) {
+                const user = TokenService.getUser();
+                nav.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <a href="/Productv/Index" class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Products</a>
+                        <a href="/Productv/Add" class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors">Add Product</a>
+                        <a href="/Cartv/Cart" class="relative">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                        </a>
+                        <div class="h-4 w-px bg-outline-variant/30"></div>
+                        <span class="text-sm text-on-surface-variant font-medium hidden sm:block">${user?.name || user?.email || 'User'}</span>
+                        <button onclick="handleLogout()" class="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-primary hover:bg-surface-container-high rounded-lg transition-colors">
+                            <span class="material-symbols-outlined text-lg">logout</span>
+                        </button>
+                    </div>
+                `;
+            } else {
+                nav.innerHTML = `
+                    <a href="/Authv/Login" class="text-sm font-semibold text-primary hover:opacity-80 transition-opacity">Sign In</a>
+                    <a href="/Authv/Register" class="px-4 py-2 text-sm font-semibold text-on-primary primary-gradient rounded-lg hover:opacity-90 transition-opacity">Get Started</a>
+                `;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                const token = TokenService.getAccessToken();
+                const { ipAddress } = getClientInfo();
+                await ApiService.logout(token, ipAddress);
+            } catch (e) {
+                console.error('Logout error:', e);
+            } finally {
+                TokenService.clearTokens();
+                showToast('Logged out successfully', 'success');
+                setTimeout(() => window.location.href = '/Authv/Login', 800);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateNavState);
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

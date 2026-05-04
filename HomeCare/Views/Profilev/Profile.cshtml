@@ -1,0 +1,558 @@
+﻿@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_Layout";
+}
+
+<div class="max-w-7xl mx-auto px-6 md:px-8 pt-24 pb-16">
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        <!-- Sidebar -->
+        <aside class="w-full lg:w-64 flex-shrink-0">
+            <div class="lg:sticky lg:top-24 bg-surface-container-low rounded-xl p-4 shadow-[0_12px_48px_rgba(0,11,96,0.06)]">
+                <div class="flex items-center gap-3 mb-6 px-2 pt-2">
+                    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-xl">person</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="font-headline font-bold text-primary text-sm truncate" id="sidebarName">Loading...</p>
+                        <p class="text-on-surface-variant text-xs truncate" id="sidebarEmail">...</p>
+                    </div>
+                </div>
+                <nav class="space-y-1">
+                    <button onclick="showSection('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all bg-primary/10 text-primary">
+                        <span class="material-symbols-outlined text-lg">person_outline</span>
+                        Profile
+                    </button>
+                    <button onclick="showSection('orders')" id="nav-orders" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all text-on-surface-variant hover:bg-surface-container-high hover:text-primary">
+                        <span class="material-symbols-outlined text-lg">receipt_long</span>
+                        Order History
+                    </button>
+                    <button onclick="showSection('security')" id="nav-security" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all text-on-surface-variant hover:bg-surface-container-high hover:text-primary">
+                        <span class="material-symbols-outlined text-lg">shield</span>
+                        Security
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-grow min-w-0">
+            <!-- Profile Section -->
+            <div id="section-profile" class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <h1 class="font-headline text-2xl md:text-3xl font-bold text-primary tracking-tight">Profile Information</h1>
+                    <button onclick="toggleEditProfile()" id="editProfileBtn" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-primary border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                        Edit
+                    </button>
+                </div>
+
+                <div class="bg-surface-container-low rounded-xl p-6 md:p-8 shadow-[0_12px_48px_rgba(0,11,96,0.06)]">
+                    <div id="profileView" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant">Username</label>
+                                <p class="text-primary font-semibold" id="viewUsername">—</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant">Email</label>
+                                <p class="text-primary font-semibold" id="viewEmail">—</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant">Phone</label>
+                                <p class="text-primary font-semibold" id="viewPhone">—</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant">Member Since</label>
+                                <p class="text-primary font-semibold">—</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="profileEditForm" class="hidden space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant" for="editUsername">Username</label>
+                                <input type="text" id="editUsername" class="w-full px-4 py-3 bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg transition-all outline-none text-on-surface" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant" for="editEmail">Email</label>
+                                <input type="email" id="editEmail" class="w-full px-4 py-3 bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg transition-all outline-none text-on-surface" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant" for="editPhone">Phone</label>
+                                <input type="tel" id="editPhone" class="w-full px-4 py-3 bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg transition-all outline-none text-on-surface" />
+                            </div>
+                        </div>
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" onclick="toggleEditProfile()" class="px-6 py-3 border border-outline-variant text-primary font-semibold rounded-lg hover:bg-surface-container-high transition-all">Cancel</button>
+                            <button type="submit" id="saveProfileBtn" data-text="Save Changes" class="px-6 py-3 primary-gradient text-on-primary font-semibold rounded-lg hover:opacity-90 transition-all relative flex items-center justify-center">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="section-orders" class="hidden space-y-6">
+                <h1 class="font-headline text-2xl md:text-3xl font-bold text-primary tracking-tight">Order History</h1>
+
+                <div id="ordersList" class="space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Loading -->
+                <div id="ordersLoading" class="py-16 text-center">
+                    <div class="inline-block w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                    <p class="text-on-surface-variant text-sm mt-3">Loading orders...</p>
+                </div>
+
+                <!-- Empty -->
+                <div id="ordersEmpty" class="hidden py-16 text-center">
+                    <span class="material-symbols-outlined text-6xl text-outline-variant mb-4">receipt_long</span>
+                    <h3 class="font-headline text-xl font-bold text-primary mb-2">No orders yet</h3>
+                    <p class="text-on-surface-variant text-sm mb-6">Your order history will appear here.</p>
+                    <a href="/Productv/Index" class="inline-flex items-center gap-2 px-6 py-3 primary-gradient text-on-primary font-semibold rounded-lg hover:opacity-90 transition-opacity">Start Shopping</a>
+                </div>
+
+                <!-- Pagination -->
+                <div id="ordersPagination" class="flex items-center justify-center gap-2 mt-8 hidden">
+                    <button onclick="changeOrderPage(-1)" id="ordersPrev" class="w-10 h-10 rounded border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors disabled:opacity-30">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <span class="text-sm text-on-surface-variant font-medium" id="ordersPageInfo">Page 1</span>
+                    <button onclick="changeOrderPage(1)" id="ordersNext" class="w-10 h-10 rounded border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors disabled:opacity-30">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Security Section -->
+            <div id="section-security" class="hidden space-y-6">
+                <h1 class="font-headline text-2xl md:text-3xl font-bold text-primary tracking-tight">Security</h1>
+
+                <div class="bg-surface-container-low rounded-xl p-6 md:p-8 shadow-[0_12px_48px_rgba(0,11,96,0.06)] space-y-8">
+                    <!-- Change Password -->
+                    <div>
+                        <h3 class="font-headline text-lg font-bold text-primary mb-4">Change Password</h3>
+                        <form id="passwordForm" class="space-y-4 max-w-md">
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant">Current Password</label>
+                                <input type="password" id="oldPassword" required class="w-full px-4 py-3 bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg transition-all outline-none text-on-surface" placeholder="••••••••" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant">New Password</label>
+                                <input type="password" id="newPassword" required minlength="6" class="w-full px-4 py-3 bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg transition-all outline-none text-on-surface" placeholder="••••••••" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-label text-xs uppercase tracking-widest font-medium text-on-surface-variant">Confirm New Password</label>
+                                <input type="password" id="confirmNewPassword" required minlength="6" class="w-full px-4 py-3 bg-surface-container-lowest border-0 ring-1 ring-outline-variant/20 focus:ring-2 focus:ring-primary rounded-lg transition-all outline-none text-on-surface" placeholder="••••••••" />
+                            </div>
+                            <button type="submit" id="passwordBtn" data-text="Update Password" class="px-6 py-3 primary-gradient text-on-primary font-semibold rounded-lg hover:opacity-90 transition-all relative flex items-center justify-center">Update Password</button>
+                        </form>
+                    </div>
+
+                    <div class="border-t border-outline-variant/20 pt-8">
+                        <h3 class="font-headline text-lg font-bold text-primary mb-4">Account Actions</h3>
+                        <button onclick="handleLogout()" class="flex items-center gap-2 px-4 py-3 text-error font-semibold border border-error/30 rounded-lg hover:bg-error-container/20 transition-colors">
+                            <span class="material-symbols-outlined">logout</span>
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div id="orderModal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOrderModal()"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none">
+        <div class="bg-surface-container-lowest w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.2)] pointer-events-auto custom-scrollbar">
+            <div class="sticky top-0 bg-surface-container-lowest z-10 px-6 py-5 border-b border-outline-variant/10 flex items-center justify-between">
+                <h2 class="font-headline text-xl font-bold text-primary">Order Details</h2>
+                <button onclick="closeOrderModal()" class="w-10 h-10 rounded-full hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="orderDetailContent" class="p-6 space-y-6">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        #orderModal {
+            transition: opacity 0.2s ease;
+        }
+
+            #orderModal.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            #orderModal:not(.hidden) {
+                opacity: 1;
+            }
+
+        .order-card {
+            transition: all 0.2s ease;
+        }
+
+            .order-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 32px rgba(0,11,96,0.08);
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        let currentUser = null;
+        let ordersPage = 1;
+        let ordersPageSize = 10;
+        let totalOrders = 0;
+        let ordersData = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserProfile();
+        });
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function showSection(section) {
+            ['profile', 'orders', 'security'].forEach(s => {
+                document.getElementById(`section-${s}`).classList.add('hidden');
+                const nav = document.getElementById(`nav-${s}`);
+                nav.classList.remove('bg-primary/10', 'text-primary');
+                nav.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high', 'hover:text-primary');
+            });
+            document.getElementById(`section-${section}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${section}`);
+            activeNav.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high', 'hover:text-primary');
+            activeNav.classList.add('bg-primary/10', 'text-primary');
+
+            if (section === 'orders' && ordersData.length === 0) {
+                loadOrders();
+            }
+        }
+
+        // ============================================
+        // PROFILE
+        // ============================================
+        async function loadUserProfile() {
+            try {
+                const user = await ApiService.getUser();
+                currentUser = user;
+                document.getElementById('viewUsername').textContent = user.username || '—';
+                document.getElementById('viewEmail').textContent = user.email || '—';
+                document.getElementById('viewPhone').textContent = user.phone || '—';
+                document.getElementById('sidebarName').textContent = user.username || user.email || 'User';
+                document.getElementById('sidebarEmail').textContent = user.email || '';
+
+                document.getElementById('editUsername').value = user.username || '';
+                document.getElementById('editEmail').value = user.email || '';
+                document.getElementById('editPhone').value = user.phone || '';
+            } catch (error) {
+                showToast('Failed to load profile');
+            }
+        }
+
+        function toggleEditProfile() {
+            const view = document.getElementById('profileView');
+            const edit = document.getElementById('profileEditForm');
+            const btn = document.getElementById('editProfileBtn');
+            if (edit.classList.contains('hidden')) {
+                view.classList.add('hidden');
+                edit.classList.remove('hidden');
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm">close</span> Cancel';
+            } else {
+                view.classList.remove('hidden');
+                edit.classList.add('hidden');
+                btn.innerHTML = '<span class="material-symbols-outlined text-sm">edit</span> Edit';
+            }
+        }
+
+        document.getElementById('profileEditForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveProfileBtn');
+            setButtonLoading(btn, true);
+
+            const newUsername = document.getElementById('editUsername').value.trim();
+            const newEmail = document.getElementById('editEmail').value.trim();
+            const newPhone = document.getElementById('editPhone').value.trim();
+
+            try {
+                const promises = [];
+                if (newUsername && newUsername !== currentUser?.username) {
+                    promises.push(ApiService.updateUsername(newUsername));
+                }
+                if (newEmail && newEmail !== currentUser?.email) {
+                    promises.push(ApiService.updateEmail(newEmail));
+                }
+                if (newPhone && newPhone !== currentUser?.phone) {
+                    promises.push(ApiService.updatePhone(newPhone));
+                }
+
+                if (promises.length === 0) {
+                    showToast('No changes to save');
+                    setButtonLoading(btn, false);
+                    return;
+                }
+
+                await Promise.all(promises);
+                showToast('Profile updated', 'success');
+                await loadUserProfile();
+                toggleEditProfile();
+            } catch (error) {
+                showToast(error.message || 'Failed to update profile');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        });
+
+        // ============================================
+        // PASSWORD
+        // ============================================
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('passwordBtn');
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showToast('Passwords do not match');
+                return;
+            }
+            if (newPassword.length < 6) {
+                showToast('Password must be at least 6 characters');
+                return;
+            }
+
+            setButtonLoading(btn, true);
+            try {
+                await ApiService.updatePassword(oldPassword, newPassword);
+                showToast('Password updated successfully', 'success');
+                document.getElementById('passwordForm').reset();
+            } catch (error) {
+                showToast(error.message || 'Failed to update password');
+            } finally {
+                setButtonLoading(btn, false);
+            }
+        });
+
+        // ============================================
+        // ORDERS
+        // ============================================
+        async function loadOrders() {
+            const list = document.getElementById('ordersList');
+            const loading = document.getElementById('ordersLoading');
+            const empty = document.getElementById('ordersEmpty');
+            const pagination = document.getElementById('ordersPagination');
+
+            list.innerHTML = '';
+            loading.classList.remove('hidden');
+            empty.classList.add('hidden');
+            pagination.classList.add('hidden');
+
+            try {
+                const response = await ApiService.getOrders(ordersPage, ordersPageSize);
+                let orders = [];
+                if (Array.isArray(response)) {
+                    orders = response;
+                } else if (response && response.items) {
+                    orders = response.items;
+                } else if (response && response.data) {
+                    orders = response.data;
+                }
+
+                loading.classList.add('hidden');
+                ordersData = orders;
+
+                if (!orders || orders.length === 0) {
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                orders.forEach(order => {
+                    const card = createOrderCard(order);
+                    list.appendChild(card);
+                });
+
+                updateOrderPagination();
+
+            } catch (error) {
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                showToast(error.message || 'Failed to load orders');
+            }
+        }
+
+        function createOrderCard(order) {
+            const div = document.createElement('div');
+            div.className = 'order-card bg-surface-container-lowest rounded-xl p-5 md:p-6 shadow-[0_4px_16px_rgba(0,11,96,0.04)] cursor-pointer';
+            div.onclick = () => openOrderDetail(order.id);
+
+            const statusColors = {
+                0: { bg: 'bg-amber-500/10', text: 'text-amber-600', label: 'Pending' },
+                1: { bg: 'bg-[#00685d]/10', text: 'text-[#00685d]', label: 'Confirmed' },
+                2: { bg: 'bg-primary/10', text: 'text-primary', label: 'Shipped' },
+                3: { bg: 'bg-[#00685d]/10', text: 'text-[#00685d]', label: 'Delivered' },
+                4: { bg: 'bg-error/10', text: 'text-error', label: 'Cancelled' }
+            };
+            const status = statusColors[order.status] || statusColors[0];
+            const date = order.createdDate ? new Date(order.createdDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+
+            div.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-primary">package_2</span>
+                        </div>
+                        <div>
+                            <p class="font-headline font-bold text-primary">Order #${order.id}</p>
+                            <p class="text-on-surface-variant text-xs mt-0.5">${date}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${status.bg} ${status.text}">${status.label}</span>
+                        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-outline-variant/10 flex items-center justify-between">
+                    <span class="text-on-surface-variant text-sm">${order.address || 'No address'}</span>
+                    <span class="font-bold text-primary font-headline">$${order.price?.toFixed(2) || '0.00'}</span>
+                </div>
+            `;
+            return div;
+        }
+
+        async function openOrderDetail(orderId) {
+            const modal = document.getElementById('orderModal');
+            const content = document.getElementById('orderDetailContent');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            content.innerHTML = `
+                <div class="py-8 text-center">
+                    <div class="inline-block w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                    <p class="text-on-surface-variant text-sm mt-3">Loading order details...</p>
+                </div>
+            `;
+
+            try {
+                const order = await ApiService.getOrder(orderId);
+                const statusColors = {
+                    0: { bg: 'bg-amber-500/10', text: 'text-amber-600', label: 'Pending' },
+                    1: { bg: 'bg-[#00685d]/10', text: 'text-[#00685d]', label: 'Confirmed' },
+                    2: { bg: 'bg-primary/10', text: 'text-primary', label: 'Shipped' },
+                    3: { bg: 'bg-[#00685d]/10', text: 'text-[#00685d]', label: 'Delivered' },
+                    4: { bg: 'bg-error/10', text: 'text-error', label: 'Cancelled' }
+                };
+                const status = statusColors[order.status] || statusColors[0];
+                const date = order.createdDate ? new Date(order.createdDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+
+                let productsHtml = '';
+                if (order.products && order.products.length > 0) {
+                    productsHtml = order.products.map(p => `
+                        <div class="flex gap-3 items-center py-3 border-b border-outline-variant/10 last:border-0">
+                            <div class="w-14 h-14 rounded-lg bg-surface-container-low overflow-hidden flex-shrink-0">
+                                <img src="${p.image || 'https://via.placeholder.com/56?text=No+Image'}" alt="${p.name}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/56?text=No+Image'" />
+                            </div>
+                            <div class="flex-grow min-w-0">
+                                <p class="font-semibold text-primary text-sm truncate">${p.name}</p>
+                                <p class="text-on-surface-variant text-xs">${p.categoryName || ''} ${p.brandName ? '· ' + p.brandName : ''}</p>
+                            </div>
+                            <span class="font-bold text-primary text-sm flex-shrink-0">$${p.price?.toFixed(2) || '0.00'}</span>
+                        </div>
+                    `).join('');
+                }
+
+                content.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold ${status.bg} ${status.text}">${status.label}</span>
+                        <span class="text-on-surface-variant text-xs">${date}</span>
+                    </div>
+
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-outline text-sm mt-0.5">person</span>
+                            <div>
+                                <p class="text-xs text-on-surface-variant">Full Name</p>
+                                <p class="text-sm font-semibold text-primary">${order.fullName || '—'}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-outline text-sm mt-0.5">email</span>
+                            <div>
+                                <p class="text-xs text-on-surface-variant">Email</p>
+                                <p class="text-sm font-semibold text-primary">${order.email || '—'}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-outline text-sm mt-0.5">phone</span>
+                            <div>
+                                <p class="text-xs text-on-surface-variant">Phone</p>
+                                <p class="text-sm font-semibold text-primary">${order.phoneNumber || '—'}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-outline text-sm mt-0.5">location_on</span>
+                            <div>
+                                <p class="text-xs text-on-surface-variant">Address</p>
+                                <p class="text-sm font-semibold text-primary">${order.streetAddress || '—'}${order.cityName ? ', ' + order.cityName : ''}${order.countryName ? ', ' + order.countryName : ''}${order.postalCode ? ' ' + order.postalCode : ''}${order.state ? ' (' + order.state + ')' : ''}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-outline-variant/20 pt-4">
+                        <h4 class="font-label text-xs uppercase tracking-widest font-bold text-primary mb-3">Items</h4>
+                        <div class="space-y-1">${productsHtml || '<p class="text-on-surface-variant text-sm">No items</p>'}</div>
+                    </div>
+
+                    <div class="border-t border-outline-variant/20 pt-4 flex justify-between items-center">
+                        <span class="font-bold text-primary">Total</span>
+                        <span class="font-bold text-primary text-xl">$${order.price?.toFixed(2) || '0.00'}</span>
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="py-8 text-center">
+                        <span class="material-symbols-outlined text-4xl text-error mb-2">error</span>
+                        <p class="text-on-surface-variant text-sm">Failed to load order details</p>
+                    </div>
+                `;
+            }
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function updateOrderPagination() {
+            const pagination = document.getElementById('ordersPagination');
+            const prev = document.getElementById('ordersPrev');
+            const next = document.getElementById('ordersNext');
+            const info = document.getElementById('ordersPageInfo');
+
+            if (ordersData.length < ordersPageSize && ordersPage === 1) {
+                pagination.classList.add('hidden');
+                return;
+            }
+            pagination.classList.remove('hidden');
+            prev.disabled = ordersPage <= 1;
+            next.disabled = ordersData.length < ordersPageSize;
+            info.textContent = `Page ${ordersPage}`;
+        }
+
+        function changeOrderPage(direction) {
+            const newPage = ordersPage + direction;
+            if (newPage < 1) return;
+            ordersPage = newPage;
+            loadOrders();
+        }
+    </script>
+}

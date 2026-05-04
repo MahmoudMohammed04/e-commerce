@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Product Details";
+    Layout = "_Layout";
+    var productId = ViewData["ProductId"];
+}
+
+<div class="w-full max-w-7xl mx-auto px-6 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-8">
+        <a href="/Product/Index" class="hover:text-primary transition-colors">Products</a>
+        <span class="material-symbols-outlined text-lg">chevron_right</span>
+        <span id="breadcrumbName" class="text-on-surface">Loading...</span>
+    </nav>
+
+    <div id="productDetail" class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <!-- Images Section -->
+        <div class="space-y-4">
+            <div class="aspect-square rounded-xl overflow-hidden bg-surface-container-low shadow-sm">
+                <img id="mainImage" src="" alt="" class="w-full h-full object-cover" />
+            </div>
+            <div id="thumbnailGrid" class="grid grid-cols-4 gap-3">
+                <!-- Thumbnails populated by JS -->
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="flex flex-col justify-center">
+            <div id="loadingInfo" class="py-12 text-center">
+                <div class="inline-block w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            </div>
+
+            <div id="productInfo" class="hidden space-y-6">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span id="detailCategory" class="text-xs font-semibold uppercase tracking-wider text-primary bg-primary-fixed px-3 py-1 rounded-full"></span>
+                        <span id="detailBrand" class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full"></span>
+                    </div>
+                    <h1 id="detailName" class="font-headline text-4xl font-bold text-primary tracking-tight mb-3"></h1>
+                    <p id="detailPrice" class="font-headline text-3xl font-bold text-primary-container"></p>
+                </div>
+
+                <div class="h-px bg-outline-variant/20"></div>
+
+                <div>
+                    <h3 class="font-label text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-3">Description</h3>
+                    <p id="detailDescription" class="text-on-surface leading-relaxed"></p>
+                </div>
+
+                <div class="flex items-center gap-6 py-4">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">inventory_2</span>
+                        <div>
+                            <p class="text-xs text-on-surface-variant">In Stock</p>
+                            <p id="detailQuantity" class="font-semibold text-primary"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">shopping_cart_checkout</span>
+                        <div>
+                            <p class="text-xs text-on-surface-variant">Sold</p>
+                            <p id="detailSold" class="font-semibold text-primary"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button class="flex-1 py-4 primary-gradient text-on-primary font-semibold rounded-lg shadow-lg shadow-primary/10 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                        Add to Cart
+                    </button>
+                    <button class="px-6 py-4 bg-surface-container-high text-primary font-semibold rounded-lg hover:bg-surface-container-highest transition-colors">
+                        <span class="material-symbols-outlined">favorite_border</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const productId = @productId;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadProductDetails();
+        });
+
+        async function loadProductDetails() {
+            try {
+                const product = await ApiService.getProductDetails(productId);
+
+                document.getElementById('breadcrumbName').textContent = product.name;
+                document.getElementById('detailName').textContent = product.name;
+                document.getElementById('detailPrice').textContent = `$${product.price?.toFixed(2) || '0.00'}`;
+                document.getElementById('detailDescription').textContent = product.description || 'No description available';
+                document.getElementById('detailCategory').textContent = product.categoryName || 'Uncategorized';
+                document.getElementById('detailBrand').textContent = product.brandName || 'No Brand';
+                document.getElementById('detailQuantity').textContent = product.quantity || 0;
+                document.getElementById('detailSold').textContent = product.sold || 0;
+
+                // Main image
+                const mainImg = document.getElementById('mainImage');
+                mainImg.src = product.image || 'https://via.placeholder.com/600x600?text=No+Image';
+                mainImg.alt = product.name;
+
+                // Thumbnails
+                const thumbGrid = document.getElementById('thumbnailGrid');
+                const images = product.images || [product.image];
+
+                images.forEach((img, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `aspect-square rounded-lg overflow-hidden bg-surface-container-low border-2 transition-all ${idx === 0 ? 'border-primary' : 'border-transparent hover:border-outline-variant'}`;
+                    btn.innerHTML = `<img src="${img}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" />`;
+                    btn.onclick = () => {
+                        mainImg.src = img;
+                        Array.from(thumbGrid.children).forEach(c => c.classList.replace('border-primary', 'border-transparent'));
+                        btn.classList.replace('border-transparent', 'border-primary');
+                    };
+                    thumbGrid.appendChild(btn);
+                });
+
+                document.getElementById('loadingInfo').classList.add('hidden');
+                document.getElementById('productInfo').classList.remove('hidden');
+
+            } catch (error) {
+                showToast(error.message || 'Failed to load product details');
+                document.getElementById('breadcrumbName').textContent = 'Error';
+            }
+        }
+    </script>
+}
